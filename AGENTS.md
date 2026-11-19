@@ -217,6 +217,28 @@ Respect the existing repository and the developer's work.
 
 Keep changes focused and easy to review.
 
+### Git and Version Control Workflow
+
+- The developer uses **GitHub Desktop** as the primary Git interface.
+- Do not execute Git commands through the terminal or command-line tools.
+- Do not use `git status`, `git diff`, `git add`, `git commit`, `git push`, `git reset`, `git checkout`, or other Git CLI commands.
+- Do not attempt to install or use GitHub CLI (`gh`).
+- Do not create commits, push changes, create branches, or modify repository history.
+- When a Git operation is needed, explain the required action and ask the developer to perform it through GitHub Desktop.
+- Before recommending a commit, summarize the logical changes and remind the developer to review the changes in GitHub Desktop.
+- You may inspect and modify project files normally, but leave all version-control operations to the developer through GitHub Desktop.
+
+#### Git Workflow Expectations
+
+The developer will use GitHub Desktop to:
+- Review changed files and diffs.
+- Stage and unstage changes.
+- Create commits.
+- Push changes to the remote repository.
+- Review repository history.
+
+Never assume that a Git CLI operation is necessary just because a task involves reviewing changes or creating a checkpoint. Prefer explaining how to perform the operation in GitHub Desktop.
+
 ## 10. Documentation
 
 Keep documentation consistent with the actual implementation.

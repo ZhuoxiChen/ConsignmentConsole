@@ -4,12 +4,13 @@
 
 This document records the requirements for restarting the requirements-analysis and implementation phases of the Consignment Operations Console.
 
+
 **Requirement labels**
 
 - **[EXPLICIT]**: Stated directly in `assignmentBrief.md`.
 - **[DERIVED]**: Reasonable inference from explicit requirements.
 - **[DECISION REQUIRED]**: Information not defined by the brief and requiring confirmation or a documented team decision.
-- **[NOT REQUIRED BY BRIEF]**: Not required in the brief. 
+- **[NOT REQUIRED BY BRIEF]**: Not required in the brief or explicitly excluded.
 
 The brief is the authoritative requirements source. The supplied CSV is evidence of expected data shapes and data-quality problems, not the source of business rules.
 
@@ -102,16 +103,15 @@ The deliverable is a small, end-to-end consignment operations console demonstrat
 - Migration design.
 - A live demo.
 
+
 ### 2.4 Out of Scope
 
 **[EXPLICIT]**
 
-- Authentication implementation.
-- Production deployment.
-- Migration implementation.
-- Additional features not needed to satisfy the assignment.
-
-**[EXPLICIT]** Authentication may be skipped. Request-scoped tenant identity may be represented by an `X-Tenant` header or another lightweight mechanism.
+- Authentication (may be skipped; request-scoped tenant identity may be represented by an `X-Tenant` header or another lightweight mechanism).
+- Deployment.
+- Migration implementation (migration note is design-only).
+- Anything not listed in the assignment requirements.
 
 **[DECISION REQUIRED]** Whether any additional administrative, user-management, reporting, carrier-management, or editing features are required. No such features should be inferred as requirements.
 
@@ -141,7 +141,8 @@ The deliverable is a small, end-to-end consignment operations console demonstrat
 
 **[DECISION REQUIRED]** The exact import report format and whether it must be visible through the API, a file, the console, or all of those.
 
-### 3.2 CSV Data Characteristics
+
+### 3.2 CSV Data Characteristics and Duplicate/Conflict Clarification
 
 **[EXPLICIT]** The CSV may contain data-quality problems.
 
@@ -157,6 +158,12 @@ Observed characteristics include:
 - **Repeated consignment number within a tenant:** `CN200011` appears twice under Coastal Couriers with different row details.
 - **Three tenant codes:** `swiftline-freight`, `coastal-couriers`, and the additional `northern-haulage`.
 - **Cross-tenant number reuse:** For example, `CN100017` appears under both Coastal Couriers and Swiftline Freight.
+
+**Clarification of duplicate/conflict cases:**
+
+- **Identical duplicate rows:** Same tenant, consignment number, and all other fields are identical. These should be treated as idempotent (importing again does not create a new record).
+- **Conflicting rows (same tenant and consignment number, different data):** These represent a potential data conflict. The brief does not specify whether to reject, update, or report these; this must be decided.
+- **Identical consignment numbers across different tenants:** Explicitly allowed by the brief. The same consignment number can exist under two tenants.
 
 These observations describe the supplied data only. They do not establish that all such cases should be rejected or accepted.
 
@@ -286,6 +293,8 @@ The brief defines the following lifecycle:
 - `address_incorrect`
 - `refused`
 - `access_issue`
+
+**[EXPLICIT]** Rule for status changing from `failed_delivery` to `out_for_delivery` or `returned`: Re-attempt or return to sender.
 
 **[EXPLICIT]** Invalid transitions must be rejected with clear errors.
 
@@ -680,98 +689,20 @@ No scenario should be considered required unless explicitly listed in the brief 
 
 ---
 
+
 ## 16. Acceptance Criteria
 
-The following criteria are explicit or direct testable interpretations of the brief.
+The following criteria are direct testable interpretations of the brief and are consolidated to avoid repetition with earlier sections. All must be satisfied for acceptance:
 
-### 16.1 Import
-
-**[EXPLICIT]**
-
-- The supplied CSV can be loaded.
-- Valid rows are present in the database.
-- Invalid rows are not silently lost.
-- Rejected rows have reasons in a visible report.
-- Import execution does not crash because of bad rows.
-- Re-running import does not create duplicate consignments.
-
-### 16.2 Tenant Isolation
-
-**[EXPLICIT]**
-
-- Every request requires or carries tenant context.
-- A tenant can only list and retrieve its own consignments.
-- A tenant cannot change another tenant’s consignments.
-- Guessed IDs or consignment numbers do not reveal cross-tenant records.
-- One consignment number may appear successfully for multiple tenants.
-
-### 16.3 Lifecycle
-
-**[EXPLICIT]**
-
-- Every supplied transition is allowed only according to the defined table.
-- Delivered requires signer name and delivery time.
-- Failed delivery requires one of the four specified reasons.
-- Invalid transitions are rejected clearly.
-- Missing proof or failure details are rejected clearly.
-- Final states cannot transition onward.
-
-### 16.4 Status History
-
-**[EXPLICIT]**
-
-- Get-one-consignment returns status history.
-- Status history reflects successful status changes.
-
-**[DERIVED]** Rejected transitions do not modify history.
-
-### 16.5 Concurrency
-
-**[EXPLICIT]**
-
-- Simultaneous updates are tested or demonstrably controlled.
-- A stale update is rejected rather than silently overwriting new state.
-- Conflict handling uses a version or ETag or equivalent mechanism.
-- The UI displays the latest state after a conflict.
-
-### 16.6 API
-
-**[EXPLICIT]**
-
-- API runs under ASP.NET Core .NET 8 or later.
-- API supports list, filter, search, paging, get-one, and status-change operations.
-
-### 16.7 Frontend
-
-**[EXPLICIT]**
-
-- The list view has status filtering, receiver or number search, and paging.
-- The detail view shows status history.
-- Status-change UI collects proof or failure details where required.
-- Validation errors are visible.
-- Conflict state is visible and typed data is retained.
-- Tenant switching works.
-
-### 16.8 Demo and Setup
-
-**[EXPLICIT]**
-
-- A fresh setup can start the database, API, and web app using documented commands.
-- CSV data is imported.
-- The import report is visible.
-- The demo works in a live, end-to-end scenario.
-
-### 16.9 Testing and Documentation
-
-**[EXPLICIT]**
-
-- Transition, tenant-isolation, and concurrency tests exist and run.
-- One meaningful frontend test exists and runs.
-- README includes run commands, key decisions, and next steps.
-- AI-usage note exists.
-- Migration design exists.
-
----
+- CSV import: Valid rows are imported, invalid rows are rejected with reasons, import is idempotent, and the process is robust to bad data.
+- Tenant isolation: Tenants cannot see or modify each other's consignments; cross-tenant consignment numbers are allowed.
+- Status lifecycle: Only allowed transitions per the lifecycle table; delivered and failed_delivery require the specified details; invalid transitions and missing details are rejected.
+- Status history: Status changes are recorded and retrievable; rejected transitions do not alter history.
+- Concurrency: Stale updates are rejected (e.g., 409); the latest state is shown after a conflict.
+- API: .NET 8+, supports list, filter, search, paging, get-one, status-change, and error handling as specified.
+- Frontend: React+TypeScript, supports all required screens and interactions, including conflict handling and tenant switching.
+- Demo/setup: One-command startup (ideally), import report visible, demo works end-to-end.
+- Testing/documentation: Backend tests for lifecycle, isolation, concurrency; one meaningful frontend test; README and migration note as specified.
 
 ## 17. Explicit Assumptions
 
@@ -787,9 +718,10 @@ These assumptions must not be treated as confirmed business rules.
 
 ---
 
+
 ## 18. Unresolved Questions and Decisions
 
-The following decisions must be confirmed or intentionally documented before implementation proceeds:
+The following decisions must be made before core implementation begins (all others may be documented in spec.md):
 
 1. Which CSV fields are mandatory?
 2. What is valid for item count and weight?
@@ -802,30 +734,16 @@ The following decisions must be confirmed or intentionally documented before imp
 9. What tenant header name and missing-tenant behavior should be used?
 10. How is an unknown tenant represented to the caller?
 11. What constitutes a unique consignment identifier internally?
-12. What API routes and HTTP methods should be used?
-13. What is the pagination contract?
-14. What exact filters and search semantics are required?
-15. What status-history fields are required?
-16. Should import-created records receive initial status-history entries?
-17. What proof-of-delivery data shape is required?
-18. What failure-reason representation is required?
-19. Is delivery time validated beyond being present?
-20. May proof or failure details be added or corrected after the status change?
-21. Should history store proof and failure details or only the status transition?
-22. Should status history be chronological or reverse chronological?
-23. Which concurrency mechanism will be used?
-24. What is the exact 409 conflict response contract?
-25. How will the frontend preserve typed details after a conflict?
-26. SQL Server or PostgreSQL?
-27. EF Core, Dapper, or another data-access approach?
-28. Which test framework and frontend test framework should be used?
-29. Is Docker Compose required or only preferred?
-30. Where will the import report be stored and exposed?
-31. How and when is the import triggered?
-32. How will PostgreSQL row-level security map to the tenant context in the migration design?
-33. What does “side by side for a pilot carrier” mean operationally?
+12. What proof-of-delivery and failure-reason data shape is required?
+13. What status-history fields are required?
+14. Should import-created records receive initial status-history entries?
+15. Which concurrency mechanism will be used?
+16. What is the exact 409 conflict response contract?
+17. How will the frontend preserve typed details after a conflict?
+18. How will PostgreSQL row-level security map to the tenant context in the migration design?
+19. What does “side by side for a pilot carrier” mean operationally?
 
----
+Other technical choices (e.g., API routes, pagination contract, data-access library, test framework, container tooling, error schema, etc.) may be documented in spec.md and do not block core implementation.
 
 ## 19. Risks and Scope Boundaries
 
@@ -859,17 +777,5 @@ The following decisions must be confirmed or intentionally documented before imp
 
 ---
 
-## 20. Recommended Requirements Decisions
 
-The following decisions are practical implementation recommendations, not stated requirements:
-
-- Use tenant plus consignment number as the public identity scope.
-- Keep status transitions centralized on the API/backend so the UI cannot become the only enforcement point.
-- Keep import validation and API validation separate enough to produce row-specific reports but share lifecycle rules where possible.
-- Use database transactions for status updates and history additions.
-- Use a version or ETag mechanism with an explicit 409 conflict response.
-- Make the tenant switcher reset detail and search state to prevent cross-tenant data confusion.
-- Prefer one-command startup and visible import reporting.
-- Document all remaining choices in the README so reviewers can understand the design.
-
-**[DECISION REQUIRED]** These recommendations require confirmation or a documented decision before they become binding requirements.
+# [Section removed: Implementation recommendations belong in spec.md, not intent.md.]
