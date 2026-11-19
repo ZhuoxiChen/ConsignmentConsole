@@ -44,21 +44,63 @@ This log separates observed work from planned work and does not claim unobserved
 - Additional approved revisions established `(TenantId, ConsignmentNumber)` uniqueness, composite tenant-owned history keys, tenant-qualified list/detail/update queries, exact-duplicate/import-conflict rules, and migration-only RLS design.
 - PostgreSQL migration implementation and RLS enforcement remain migration design only for this phase.
 
+## Backend Foundation (2026-11-19)
+
+### Status
+
+- Partially verified: domain/schema configuration and the initial EF Core migration were generated.
+- PostgreSQL application was not run. No PostgreSQL service, `psql`, or Docker executable was available, and `localhost:5432` was unreachable.
+- No CSV import, API endpoint, or frontend work was performed in this phase.
+
+### Files Created or Modified
+
+- Modified `src/Api/Domain/Models.cs`: replaced SQL Server-style `uint RowVersion` with positive `int Version` initialized to `1`; added `StatusHistory.TenantId`.
+- Modified `src/Api/Data/ConsignmentDbContext.cs`: configured PostgreSQL table/column names, types, keys, foreign keys, checks, and indexes.
+- Modified `src/Api/Program.cs` and `src/Api/appsettings.Development.json`: registered Npgsql using the `ConsignmentDatabase` connection string.
+- Modified `src/Api/Services/ConsignmentService.cs` and `src/Api/Models/Dtos.cs` only to align existing version references/types with `int Version`. Status-update behavior remains unfinished.
+- Modified `tests/Api.Tests/Api.Tests.csproj`; added `tests/Api.Tests/DatabaseModelTests.cs` for composite ownership-key and version/unique-index metadata checks; removed the empty `tests/Api.Tests/UnitTest1.cs` placeholder.
+- Generated `src/Api/Data/Migrations/20261119063728_InitialBackendFoundation.cs`, its designer file, and `src/Api/Data/Migrations/ConsignmentDbContextModelSnapshot.cs`.
+- Updated this development log. `AI_USAGE.md` was not changed.
+
+### Schema and Migration Decisions
+
+- Used the existing .NET 8, EF Core 8.0.11, and Npgsql 8.0.11 project; no second project or solution was created.
+- Persisted lifecycle values as constrained strings, matching the approved `varchar` schema.
+- Added the tenant-scoped unique index on `(tenant_id, consignment_number)`, the `(tenant_id, id)` alternate key, and the single composite history foreign key `(tenant_id, consignment_id)`.
+- Added database checks for valid statuses and transitions, nonnegative item count/weight, positive version, required nonblank values, and outcome-specific history details.
+- Added the specified tenant/status/created-at and history indexes, including descending timestamp columns.
+- The generated migration uses PostgreSQL types (`uuid`, `character varying`, `integer`, `numeric(10,2)`, and `timestamp with time zone`). Inspection found no SQL Server rowversion type or configuration.
+
+### Verification
+
+- `dotnet restore ConsignmentConsole.sln`: succeeded after adding the EF Core reference required by the model-metadata tests.
+- `dotnet build ConsignmentConsole.sln --no-restore`: succeeded with 0 warnings and 0 errors.
+- EF migration command (Development configuration): build succeeded and `InitialBackendFoundation` was generated.
+- `dotnet test ConsignmentConsole.sln --no-restore`: passed, 2 passed and 0 failed. An earlier test run exposed an assertion against EF's optimized runtime model; the assertion was narrowed to metadata available at runtime, then the suite passed.
+- Migration and model snapshot were inspected for keys, checks, indexes, PostgreSQL types, and absence of SQL Server-specific configuration.
+- `dotnet ef database update` and all other database-application commands were deliberately not run. Schema creation against PostgreSQL remains unverified.
+
+### Known Issues and Remaining Work
+
+- The existing status-update service is outside this phase and still needs its transaction/conditional version increment and history tenant assignment implemented before status updates can be considered correct with this schema.
+- PostgreSQL schema application and runtime constraint verification remain pending until a PostgreSQL database is available.
+- CSV import, remaining API behavior, frontend behavior, and end-to-end demo verification remain for later phases.
+
 ## Current Status
 
-- Completed: repository setup, premature scaffold, requirements reset, `intent.md` revisions, architecture planning, independent review, specification revisions, and approved design decisions.
-- Not completed: implementation of the approved specification, automated and runtime verification, and delivery of the working demo.
+- Completed: repository setup, requirements reset, architecture planning/review, approved design decisions, and Backend Foundation implementation plus migration generation.
+- Partially verified: Backend Foundation model tests and build passed; PostgreSQL migration application was not verified.
+- Not completed: CSV import, remaining API behavior, frontend, full integration/runtime verification, and delivery of the working demo.
 
-## Planned Implementation Placeholder
+## Planned Implementation
 
-- Implement the approved API, PostgreSQL schema/migrations, import flow, and React console.
-- Replace or correct any preliminary implementation that differs from `spec.md`.
-- Add and run the backend and frontend tests specified by the architecture.
+- Implement CSV import and reporting in a later phase.
+- Complete tenant-scoped API and status update behavior in later phases.
+- Implement the React console and frontend test in a later phase.
+- Apply the migration and verify schema creation when PostgreSQL is available.
 
-## Planned Verification Placeholder
+## Planned Verification
 
-- Record build results only after commands are run.
-- Record test results only after test suites execute.
 - Record Docker/demo startup, tenant isolation, CSV import, status, and conflict demonstrations only after observed runtime verification.
 
 ## Final Stop-Time Report Placeholder
