@@ -1,0 +1,69 @@
+tenant_code,consignment_number,customer_name,receiver_name,receiver_suburb,receiver_state,receiver_postcode,item_count,weight_kg,service_type,status,created_at
+swiftline-freight,CN100020,Redgum Electrical,Henry Harris,Penrith,NSW,2750,10,26.9,standard,in_transit,2026-11-10T11:37+11:00
+swiftline-freight,CN100005,Bluegum Pharmacy,Max Brown,Toowoomba,QLD,4350,11,13.0,standard,out_for_delivery,2026-11-14T14:12+11:00
+swiftline-freight,CN100032,Redgum Electrical,Priya Singh,Fremantle,WA,6160,2,-3.5,express,picked_up,2026-11-15T11:30+11:00
+coastal-couriers,CN200002,Coastline Tiles,Chloe Wilson,Blacktown,NSW,2148,5,37.2,standard,in_transit,2026-11-16T21:05+11:00
+coastal-couriers,CN200006,Peak Outdoor Supply,Priya Nguyen,Geelong,VIC,3220,2,8.7,standard,returned,2026-11-10T19:14+11:00
+swiftline-freight,CN100003,Coastline Tiles,Chloe Harris,Chatswood,NSW,2067,2,12.7,standard,picked_up,2026-11-14T19:46+11:00
+coastal-couriers,CN200007,Coastline Tiles,Olivia Tran,Ipswich,QLD,4305,10,6.3,standard,in_transit,2026-11-12T10:26+11:00
+coastal-couriers,CN200024,Coastline Tiles,Ava Murphy,Toowoomba,QLD,4350,4,19.4,standard,in_transit,2026-11-10T23:30+11:00
+swiftline-freight,CN100027,Wattle Home Goods,Max Brown,Southport,QLD,4215,8,34.8,standard,picked_up,2026-11-15T06:39+11:00
+swiftline-freight,CN100031,Coastline Tiles,Isla Harris,Geelong,VIC,3220,6,58.0,standard,DELIVRD,2026-11-13T14:40+11:00
+coastal-couriers,CN100017,Bluegum Pharmacy,Grace Kelly,Southport,QLD,4215,2,3.4,express,in_transit,2026-11-14T10:22+11:00
+swiftline-freight,CN100017,Metro Office Co,Liam Singh,Geelong,VIC,3220,9,19.5,standard,failed_delivery,2026-11-16T21:19+11:00
+coastal-couriers,CN200032,Peak Outdoor Supply,Aisha Chen,Glenelg,SA,5045,5,14.8,standard,in_transit,17/11/2026 9:30
+coastal-couriers,CN200005,Wattle Home Goods,Olivia Singh,Dandenong,VIC,3175,8,28.1,express,picked_up,2026-11-11T13:31+11:00
+coastal-couriers,CN200020,Metro Office Co,Mia Wilson,Wollongong,NSW,2500,8,30.0,standard,booked,2026-11-16T13:13+11:00
+coastal-couriers,CN200011,Metro Office Co,Sam Walker,Box Hill,VIC,3128,4,11.2,standard,booked,2026-11-12T09:05+11:00
+coastal-couriers,CN200019,Redgum Electrical,Aisha Martin,Geelong,VIC,3220,7,20.8,standard,picked_up,2026-11-10T21:38+11:00
+swiftline-freight,CN100021,Bluegum Pharmacy,Jack Wilson,Fremantle,WA,6160,11,94.5,standard,cancelled,2026-11-10T08:46+11:00
+coastal-couriers,CN200010,Peak Outdoor Supply,Chloe Martin,Ipswich,QLD,4305,3,17.0,standard,booked,2026-11-13T22:47+11:00
+coastal-couriers,CN200014,Bluegum Pharmacy,Sam Brown,Hobart,TAS,7000,5,46.9,standard,booked,2026-11-14T19:12+11:00
+swiftline-freight,CN100030,Metro Office Co,Sam Nguyen,Fortitude Valley,QLD,4006,5,39.7,standard,out_for_delivery,2026-11-16T00:16+11:00
+swiftline-freight,CN100016,Wattle Home Goods,Oscar Martin,Glenelg,SA,5045,9,60.0,express,delivered,2026-11-15T18:57+11:00
+coastal-couriers,CN200030,Bluegum Pharmacy,Priya Martin,Dandenong,VIC,3175,10,88.8,express,failed_delivery,2026-11-10T14:09+11:00
+swiftline-freight,CN100028,Metro Office Co,Ethan Taylor,Newcastle,NSW,2300,1,8.3,standard,picked_up,2026-11-16T01:42+11:00
+swiftline-freight,CN100026,Redgum Electrical,Zoe Taylor,Newcastle,NSW,2300,2,8.2,standard,booked,2026-11-12T09:36+11:00
+coastal-couriers,CN200013,Metro Office Co,Aisha Martin,Dandenong,VIC,3175,12,22.8,express,out_for_delivery,2026-11-10T12:56+11:00
+swiftline-freight,CN100002,Coastline Tiles,Sam Brown,Blacktown,NSW,2148,9,72.6,express,in_transit,2026-11-14T08:42+11:00
+swiftline-freight,CN100015,Redgum Electrical,Ava Martin,Joondalup,WA,6027,3,15.9,standard,booked,2026-11-14T18:59+11:00
+coastal-couriers,CN200004,Coastline Tiles,Olivia Brown,Liverpool,NSW,2170,7,10.0,standard,out_for_delivery,2026-11-15T22:13+11:00
+swiftline-freight,CN100014,Southern Cross Auto Parts,Priya Nguyen,Geelong,VIC,3220,9,13.8,express,picked_up,2026-11-12T20:55+11:00
+coastal-couriers,CN200027,Bluegum Pharmacy,Zoe Smith,Chatswood,NSW,2067,3,17.1,standard,booked,2026-11-12T07:16+11:00
+swiftline-freight,CN100010,Coastline Tiles,Liam Li,Geelong,VIC,3220,12,81.0,express,in_transit,2026-11-16T20:54+11:00
+swiftline-freight,CN100008,Redgum Electrical,Liam Nguyen,Liverpool,NSW,2170,2,15.6,standard,in_transit,2026-11-15T18:05+11:00
+coastal-couriers,CN200029,Bluegum Pharmacy,Max Li,Footscray,VIC,3011,11,60.9,standard,failed_delivery,2026-11-16T19:24+11:00
+coastal-couriers,CN200011,Metro Office Co,Liam Taylor,Fortitude Valley,QLD,4006,7,36.6,standard,in_transit,2026-11-15T06:27+11:00
+coastal-couriers,CN200025,Wattle Home Goods,Minh Tran,Fortitude Valley,QLD,4006,8,53.2,standard,picked_up,2026-11-14T02:54+11:00
+swiftline-freight,CN100025,Redgum Electrical,Ethan Kelly,Wollongong,NSW,2500,1,8.4,standard,booked,2026-11-13T11:14+11:00
+swiftline-freight,CN100009,Bluegum Pharmacy,Liam Tran,Chatswood,NSW,2067,3,15.8,standard,booked,2026-11-14T21:26+11:00
+swiftline-freight,CN100011,Redgum Electrical,Ava Li,Parramatta,NSW,2150,6,11.6,standard,out_for_delivery,2026-11-11T22:44+11:00
+coastal-couriers,CN200031,Wattle Home Goods,Minh Tran,Ipswich,QLD,,3,7.5,standard,booked,2026-11-15T08:10+11:00
+swiftline-freight,CN100008,Redgum Electrical,Liam Nguyen,Liverpool,NSW,2170,2,15.6,standard,in_transit,2026-11-15T18:05+11:00
+coastal-couriers,CN200028,Peak Outdoor Supply,Ethan Li,Salisbury,SA,5108,1,5.0,standard,delivered,2026-11-15T21:52+11:00
+coastal-couriers,CN200015,Wattle Home Goods,Aisha Taylor,Joondalup,WA,6027,1,4.8,standard,in_transit,2026-11-12T15:47+11:00
+swiftline-freight,CN100029,Bluegum Pharmacy,Ethan Walker,Hobart,TAS,7000,9,59.0,express,delivered,2026-11-11T00:46+11:00
+coastal-couriers,CN200023,Coastline Tiles,Aisha Murphy,Parramatta,NSW,2150,4,36.9,standard,picked_up,2026-11-17T03:49+11:00
+coastal-couriers,CN200009,Peak Outdoor Supply,Charlotte Wilson,Box Hill,VIC,3128,3,22.2,express,delivered,2026-11-13T04:20+11:00
+swiftline-freight,CN100024,Southern Cross Auto Parts,Isla Wilson,Box Hill,VIC,3128,9,19.7,standard,booked,2026-11-11T05:08+11:00
+swiftline-freight,CN100018,Southern Cross Auto Parts,Chloe Taylor,Footscray,VIC,3011,2,14.5,standard,booked,2026-11-14T19:44+11:00
+swiftline-freight,CN100012,Wattle Home Goods,Sam Robinson,Fortitude Valley,QLD,4006,5,3.0,standard,in_transit,2026-11-14T09:34+11:00
+coastal-couriers,CN200012,Harbour Hardware,Sam Singh,Ipswich,QLD,4305,7,15.2,standard,in_transit,2026-11-11T16:20+11:00
+coastal-couriers,CN200003,Metro Office Co,Wei Brown,Box Hill,VIC,3128,5,24.7,standard,out_for_delivery,2026-11-11T02:23+11:00
+swiftline-freight,CN100022,Wattle Home Goods,Sam Wilson,Chatswood,NSW,2067,3,25.3,standard,in_transit,2026-11-15T05:06+11:00
+northern-haulage,CN300001,Harbour Hardware,Leo Martin,Hobart,TAS,7000,1,1.2,standard,booked,2026-11-14T16:00+11:00
+coastal-couriers,CN200022,Bluegum Pharmacy,Chloe Kelly,Geelong,VIC,3220,2,4.7,express,out_for_delivery,2026-11-14T02:03+11:00
+coastal-couriers,CN200016,Coastline Tiles,Zoe Kelly,Chatswood,NSW,2067,1,5.2,standard,delivered,2026-11-17T04:47+11:00
+coastal-couriers,CN200018,Metro Office Co,Noah Murphy,Geelong,VIC,3220,7,50.4,standard,in_transit,2026-11-13T09:22+11:00
+swiftline-freight,CN100004,Southern Cross Auto Parts,Wei Patel,Dandenong,VIC,3175,11,78.6,standard,delivered,2026-11-15T05:30+11:00
+swiftline-freight,CN100001,Metro Office Co,Noah Robinson,Liverpool,NSW,2170,10,44.0,standard,delivered,2026-11-15T13:56+11:00
+coastal-couriers,CN200001,Coastline Tiles,Isla Tran,Joondalup,WA,6027,5,44.8,express,delivered,2026-11-16T19:43+11:00
+coastal-couriers,CN200008,Harbour Hardware,Sophie Nguyen,Wollongong,NSW,2500,11,72.6,standard,picked_up,2026-11-14T10:35+11:00
+coastal-couriers,CN200021,Metro Office Co,Zoe Kelly,Parramatta,NSW,2150,3,17.1,express,booked,2026-11-13T23:24+11:00
+swiftline-freight,CN100007,Peak Outdoor Supply,Henry Kelly,Box Hill,VIC,3128,1,6.3,express,delivered,2026-11-14T15:33+11:00
+swiftline-freight,CN100013,Bluegum Pharmacy,Oscar Kelly,Fremantle,WA,6160,12,34.4,standard,out_for_delivery,2026-11-14T13:43+11:00
+swiftline-freight,CN100019,Peak Outdoor Supply,Aisha Walker,Blacktown,NSW,2148,11,44.0,standard,in_transit,2026-11-13T00:09+11:00
+coastal-couriers,CN200017,Southern Cross Auto Parts,Sophie Wilson,Chatswood,NSW,2067,8,11.6,standard,booked,2026-11-15T21:50+11:00
+swiftline-freight,CN100006,Harbour Hardware,Grace Harris,Southport,QLD,4215,7,10.0,standard,returned,2026-11-10T22:32+11:00
+swiftline-freight,CN100023,Wattle Home Goods,Aisha Brown,Geelong,VIC,3220,2,17.5,standard,picked_up,2026-11-11T19:11+11:00
+coastal-couriers,CN200026,Wattle Home Goods,Mia Murphy,Richmond,VIC,3121,11,59.6,express,cancelled,2026-11-13T18:40+11:00
