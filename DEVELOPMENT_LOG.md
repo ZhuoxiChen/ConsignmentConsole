@@ -88,13 +88,12 @@ This log separates observed work from planned work and does not claim unobserved
 
 ## Current Status
 
-- Completed: repository setup, requirements reset, architecture planning/review, approved design decisions, Backend Foundation implementation plus migration generation, and CSV import implementation.
-- Partially verified: Backend Foundation and CSV import tests/build passed; PostgreSQL migration application and import runtime were not verified.
-- Not completed: remaining API behavior, frontend, full integration/runtime verification, and delivery of the working demo.
+- Completed: repository setup, requirements reset, architecture planning/review, approved design decisions, Backend Foundation implementation plus migration generation, CSV import implementation, and Status Lifecycle/API implementation.
+- Partially verified: backend builds and automated tests pass; PostgreSQL migration application, generated update SQL, and runtime behavior remain unverified.
+- Not completed: frontend behavior, full integration/runtime verification, and delivery of the working demo.
 
 ## Planned Implementation
 
-- Complete tenant-scoped API and status update behavior in a later phase.
 - Implement the React console and frontend test in a later phase.
 - Apply the migration and verify schema creation when PostgreSQL is available.
 
@@ -166,3 +165,38 @@ This log separates observed work from planned work and does not claim unobserved
 - `dotnet test ConsignmentConsole.sln --no-restore`: passed, 22 passed and 0 failed.
 - The malformed quoted-field test confirms CsvHelper reports the input as a parser failure with the current configuration; no normal import report is returned.
 - PostgreSQL runtime behavior remains unverified because no PostgreSQL instance was available for this validation. These tests use EF Core InMemory, and no PostgreSQL import/startup execution was performed.
+
+## Status Lifecycle and API (2026-11-19)
+
+### Changes
+
+- Added `GET /api/consignments` with tenant-scoped status/search filtering, result counts, and pagination; invalid status and paging inputs return structured `400 VALIDATION` errors.
+- Added `GET /api/consignments/{id}` returning tenant-scoped detail and status history, and `PATCH /api/consignments/{id}/status` for lifecycle changes.
+- Required and resolved `X-Tenant` for each consignment operation. Missing/blank headers return `400 TENANT_REQUIRED`; unknown tenants and cross-tenant IDs return `404 NOT_FOUND`.
+- Kept tenant predicates in the list/count, detail/history, and update queries. Search by consignment number or receiver is applied only after scoping to the resolved tenant.
+- Completed lifecycle/outcome validation and standard API exception responses. Conflict responses include freshly reloaded tenant-scoped detail.
+- Updated status and version with EF Core's conditional concurrency check. The primary key plus original `TenantId` and `Version` are used in the update predicate; `Version` is advanced once. A concurrency failure is not retried.
+- Wrapped the status update and history insertion in one transaction. The history insert runs only after the conditional consignment update succeeds, and includes the owning `TenantId`.
+- Preserved CSV import behavior. No migration or database-schema change was made; `TenantId` concurrency configuration is EF model metadata only.
+- Added lifecycle, validation, tenant-isolation, list/search/paging, tenant-header, detail-history, and stale-update tests. Updated the model test to verify tenant and version concurrency-token configuration.
+
+### Verification
+
+- `dotnet build ConsignmentConsole.sln --no-restore`: passed with 0 warnings and 0 errors.
+- `dotnet test ConsignmentConsole.sln --no-restore`: passed, 44 passed and 0 failed. This includes the existing CSV import tests.
+- EF InMemory tests verify lifecycle and service behavior; they do not prove relational transaction atomicity or PostgreSQL concurrency behavior.
+
+### Limitations
+
+- PostgreSQL was unavailable, so no database-backed request, transaction, or concurrency test was run and Npgsql-generated update SQL was not captured.
+- The conditional update was reviewed through the EF Core concurrency-token configuration and service flow: ID is the primary-key predicate, `TenantId` and `Version` are original-value concurrency predicates, and EF reports a zero-row update as `DbUpdateConcurrencyException`. The PostgreSQL provider's emitted SQL still requires runtime verification.
+- No migration or schema change was needed.
+
+## Phase 3 Completion and Targeted Review (2026-11-19)
+
+- Implemented the consignment list API with tenant-scoped search, status filtering, and pagination; detail with history; and status updates.
+- Tenant resolution uses `X-Tenant`; missing/unknown tenants and cross-tenant resources return the specified 400/404 responses.
+- Lifecycle transitions, delivery proof, and failed-delivery reasons are validated. Successful updates increment `Version`; both `TenantId` and `Version` are EF Core concurrency tokens.
+- Verification: solution build passed with 0 warnings and 0 errors; all 44 tests passed.
+- Targeted review confirmed both concurrency-token configurations. The stale-update test exercises the explicit `Version` mismatch check, not a real concurrent `DbUpdateConcurrencyException`.
+- The transaction encloses the consignment update and history insertion, but PostgreSQL rollback behavior has not been verified. PostgreSQL was unavailable; generated Npgsql SQL and real database concurrency remain unverified.

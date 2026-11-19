@@ -1,4 +1,6 @@
 using Api.Data;
+using Api.Middleware;
+using Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("ConsignmentDat
     ?? throw new InvalidOperationException("Connection string 'ConsignmentDatabase' is not configured.");
 builder.Services.AddDbContext<ConsignmentDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<CsvImportService>();
+builder.Services.AddScoped<ConsignmentService>();
 builder.Services.AddSingleton<LatestCsvImportReport>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -63,6 +66,8 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ApiExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

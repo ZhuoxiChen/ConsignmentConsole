@@ -49,7 +49,7 @@ public sealed class ConsignmentDbContext(DbContextOptions<ConsignmentDbContext> 
                 .HasDatabaseName("ix_consignments_tenant_status_created_at");
 
             e.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid");
-            e.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            e.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid").IsConcurrencyToken();
             e.Property(x => x.ConsignmentNumber).HasColumnName("consignment_number").HasMaxLength(100).IsRequired();
             e.Property(x => x.CustomerName).HasColumnName("customer_name").HasMaxLength(200).IsRequired();
             e.Property(x => x.ReceiverName).HasColumnName("receiver_name").HasMaxLength(200).IsRequired();

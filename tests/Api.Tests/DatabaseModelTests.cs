@@ -28,6 +28,7 @@ public sealed class DatabaseModelTests
         using var db = CreateContext();
         var consignment = db.Model.FindEntityType(typeof(Consignment))!;
         var version = consignment.FindProperty(nameof(Consignment.Version))!;
+        var tenantId = consignment.FindProperty(nameof(Consignment.TenantId))!;
         var tenantNumberIndex = Assert.Single(consignment.GetIndexes().Where(index =>
             index.IsUnique &&
             index.Properties.Select(property => property.Name)
@@ -35,6 +36,8 @@ public sealed class DatabaseModelTests
 
         Assert.Equal(typeof(int), version.ClrType);
         Assert.Equal(1, version.GetDefaultValue());
+        Assert.True(version.IsConcurrencyToken);
+        Assert.True(tenantId.IsConcurrencyToken);
         Assert.NotNull(tenantNumberIndex);
     }
 
