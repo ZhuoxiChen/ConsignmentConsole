@@ -84,18 +84,17 @@ This log separates observed work from planned work and does not claim unobserved
 
 - The existing status-update service is outside this phase and still needs its transaction/conditional version increment and history tenant assignment implemented before status updates can be considered correct with this schema.
 - PostgreSQL schema application and runtime constraint verification remain pending until a PostgreSQL database is available.
-- CSV import, remaining API behavior, frontend behavior, and end-to-end demo verification remain for later phases.
+- Remaining API behavior, frontend behavior, and end-to-end demo verification remain for later phases.
 
 ## Current Status
 
-- Completed: repository setup, requirements reset, architecture planning/review, approved design decisions, and Backend Foundation implementation plus migration generation.
-- Partially verified: Backend Foundation model tests and build passed; PostgreSQL migration application was not verified.
-- Not completed: CSV import, remaining API behavior, frontend, full integration/runtime verification, and delivery of the working demo.
+- Completed: repository setup, requirements reset, architecture planning/review, approved design decisions, Backend Foundation implementation plus migration generation, and CSV import implementation.
+- Partially verified: Backend Foundation and CSV import tests/build passed; PostgreSQL migration application and import runtime were not verified.
+- Not completed: remaining API behavior, frontend, full integration/runtime verification, and delivery of the working demo.
 
 ## Planned Implementation
 
-- Implement CSV import and reporting in a later phase.
-- Complete tenant-scoped API and status update behavior in later phases.
+- Complete tenant-scoped API and status update behavior in a later phase.
 - Implement the React console and frontend test in a later phase.
 - Apply the migration and verify schema creation when PostgreSQL is available.
 
@@ -108,3 +107,62 @@ This log separates observed work from planned work and does not claim unobserved
 - Add the actual stop-time date/time and timebox status.
 - Add completed items with evidence, deferred items, known limitations, and exact next steps.
 - Do not claim demo readiness until the documented startup and core workflows are verified.
+
+## CSV Import (2026-11-19)
+
+### Status
+
+- Implemented the CSV import phase and startup/report integration.
+- Build and automated tests passed as recorded below.
+- PostgreSQL was unavailable and the initial migration remains unapplied; database runtime behavior, including the unique-constraint race path, was not verified.
+
+### Files Changed
+
+- `src/Api/Data/CsvImportService.cs`: row parsing and validation, normalized tenant resolution, canonical duplicate/conflict handling, per-row persistence, and report types.
+- `src/Api/Program.cs`: register the import/report services, run the import once during startup, and log totals and row issues.
+- `src/Api/Controllers/ImportsController.cs`: expose the latest startup report at `GET /api/imports/latest`.
+- `tests/Api.Tests/Api.Tests.csproj`: add EF Core InMemory for service-level tests.
+- `tests/Api.Tests/CsvImportServiceTests.cs`: add 15 focused import tests, including a run over the supplied CSV.
+- `DEVELOPMENT_LOG.md`: record implementation and verification.
+
+### Import Behavior
+
+- Validates required fields, database field limits, integer item count, non-negative weight within `numeric(10,2)`, known lifecycle status, and supported timestamps.
+- Parses ISO 8601 timestamps with explicit offsets and interprets `dd/MM/yyyy H:mm` as UTC.
+- Trims input fields, normalizes tenant codes and statuses case-insensitively, and compares parsed numeric values and timestamp instants.
+- Resolves/creates tenant codes using the normalized lowercase code. Duplicate matching is scoped by tenant and consignment number.
+- Skips exact canonical duplicates; rejects conflicting duplicates without updating the first/existing record; allows the same number for different tenants.
+- Persists each consignment separately so row validation/data-constraint failures do not roll back earlier rows. Handles the named PostgreSQL unique constraints by reloading and comparing the existing tenant-scoped record. This race handling is implemented but has not been exercised against PostgreSQL.
+- Reports processed/imported/skipped/rejected totals and row-specific issues through startup logs and the latest-report endpoint.
+- Does not run or apply an EF migration. Startup import requires the existing database schema to have been applied separately.
+
+### Verification
+
+- `dotnet restore ConsignmentConsole.sln`: succeeded.
+- `dotnet build ConsignmentConsole.sln --no-restore`: succeeded with 0 warnings and 0 errors.
+- `dotnet test ConsignmentConsole.sln --no-restore`: passed, 17 passed and 0 failed (15 CSV-import tests and 2 existing model tests).
+- Import service tests use EF Core InMemory. They verify validation, continuation after invalid/short rows, timestamps, canonical duplicate behavior, conflicts, cross-tenant reuse, idempotency, preservation of API-modified records, report contents, and the supplied CSV.
+- The supplied 68-row CSV fixture produced 63 imported, 1 skipped, and 4 rejected rows under the service-level test; the known quality/duplicate cases were asserted by consignment number without relying on fixed row numbers.
+- These tests do not verify PostgreSQL constraints or concurrent insert behavior. PostgreSQL startup/import runtime was not tested, and `dotnet ef database update` was not run.
+
+### Known Limitations
+
+- The PostgreSQL migration must be applied before startup import can run against a real database.
+- PostgreSQL persistence, database constraint enforcement, tenant creation races, and the consignment unique-constraint race path remain unverified.
+- Malformed CSV file structure and database connectivity failures remain fatal startup/import errors; they are not reported as ordinary row validation failures.
+
+## CSV Import Failure Handling and Timestamp Coverage (2026-11-19)
+
+### Changes
+
+- `src/Api/Data/CsvImportService.cs`: CsvHelper header/parser exceptions during record enumeration now throw a `CsvImportFileException` with a file-level diagnostic instead of returning a partial report. Ordinary row validation and persistence handling remain unchanged; database connectivity exceptions are not caught or converted to row issues.
+- `src/Api/Program.cs`: logs fatal CSV file-level import failures with the input path and exception, then rethrows so startup cannot continue with an incomplete report. No migrations or startup architecture changes were made.
+- `tests/Api.Tests/CsvImportServiceTests.cs`: covers an invalid header, a malformed quoted field, and timestamp parsing for a negative offset and fractional seconds, plus rejection of an offsetless ISO timestamp. The existing test for importing a valid row after an ordinary invalid row continues to cover that behavior.
+- `DEVELOPMENT_LOG.md`: records these implementation changes, verification results, and the PostgreSQL runtime limitation.
+
+### Verification
+
+- `dotnet build ConsignmentConsole.sln --no-restore`: passed with 0 warnings and 0 errors.
+- `dotnet test ConsignmentConsole.sln --no-restore`: passed, 22 passed and 0 failed.
+- The malformed quoted-field test confirms CsvHelper reports the input as a parser failure with the current configuration; no normal import report is returned.
+- PostgreSQL runtime behavior remains unverified because no PostgreSQL instance was available for this validation. These tests use EF Core InMemory, and no PostgreSQL import/startup execution was performed.
