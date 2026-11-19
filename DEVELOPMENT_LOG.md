@@ -200,3 +200,46 @@ This log separates observed work from planned work and does not claim unobserved
 - Verification: solution build passed with 0 warnings and 0 errors; all 44 tests passed.
 - Targeted review confirmed both concurrency-token configurations. The stale-update test exercises the explicit `Version` mismatch check, not a real concurrent `DbUpdateConcurrencyException`.
 - The transaction encloses the consignment update and history insertion, but PostgreSQL rollback behavior has not been verified. PostgreSQL was unavailable; generated Npgsql SQL and real database concurrency remain unverified.
+
+## React Dispatcher Frontend (2026-11-19)
+
+### Changes
+
+- Replaced the Vite starter screen with a dispatcher console for tenant selection, server-side search/status filtering/pagination, consignment detail, status history, and status updates.
+- Added a typed API client for the existing list, detail, status-update, and latest-import-report contracts. Consignment requests include `X-Tenant`; the import report request does not.
+- Added the three demo tenant codes present in the supplied CSV. No tenant-discovery or lifecycle-discovery endpoint exists, so tenant choices and the small valid-next-status selector map are frontend configuration; API validation remains authoritative.
+- Displayed status history in the order returned by the API (oldest first). On a `409`, the UI uses the response's `latest` detail, shows its status and `Version`, preserves the form draft, and only submits again after an explicit user action.
+- Added a compact, collapsed import-report section, Vite development proxy configuration, frontend test setup, and web-specific setup/check instructions.
+- Added `web/src/App.test.tsx`, which verifies that a failed-delivery draft survives a mocked conflict, displays the latest state, sends `X-Tenant`, and is not retried automatically.
+- Added Vitest, jsdom, and React Testing Library as development dependencies. `npm install` created `web/package-lock.json`; it completed with 0 reported vulnerabilities.
+- No backend source, schema, migrations, or CSV import files were changed.
+
+### Verification
+
+- `npm test` (from `web`): passed, 1 test file and 1 test.
+- `npm run build` (from `web`): passed; TypeScript project build and Vite production build completed.
+- `npm run lint` (from `web`): passed with no lint warnings or errors.
+- The frontend test uses mocked API responses. No API/database process was started; live API and PostgreSQL integration remain unverified.
+
+### Limitations and Deferred Verification
+
+- Demo tenant options are the three CSV tenant codes because the API does not expose tenant discovery.
+- The frontend's short transition map mirrors the current backend lifecycle because there is no endpoint or shared package to supply it. The API remains authoritative for accepted updates.
+- The Vite proxy targets the API's existing HTTP development address (`http://localhost:5020`) by default and can be overridden with `VITE_API_PROXY_TARGET`. A running API/database demo and production hosting/proxy configuration were not verified in this phase.
+
+## Local PostgreSQL Setup (2026-11-19)
+
+### Changes
+
+- Added a minimal PostgreSQL 16 Compose service, bound to `127.0.0.1:5432`, with a health check and named `postgres-data` volume. No prior Compose file, PostgreSQL service, Docker container, or Docker volume was present.
+- Added `.env.example`; created a local `.env` with a generated development-only password. The existing `.gitignore` already excludes `.env`, so it was not changed. The existing ignored `appsettings.Development.json` was left untouched.
+- Updated the root README with prerequisites and PowerShell commands for starting/stopping PostgreSQL, applying migrations, starting the API, and starting the Vite frontend.
+- The first real API import attempt exposed that Npgsql requires UTC `DateTimeOffset` values for `timestamp with time zone`, while ISO CSV timestamps could retain non-UTC offsets. `CsvImportService` now normalizes parsed ISO timestamps to UTC without changing their instant; a focused assertion verifies the stored offset is UTC.
+
+### Environment and Verification
+
+- Docker CLI 29.9.3, Docker Desktop, and Compose v5.7.0 were available and the Docker engine was responsive. No local PostgreSQL Windows service or `psql` installation was detected; port 5432 was free.
+- `docker compose config --quiet` passed. The PostgreSQL service became healthy; `pg_isready` accepted connections and `localhost:5432` was reachable. The `consignments` database and `app` role were confirmed.
+- `dotnet ef database update --project src/Api --startup-project src/Api` applied the existing `20261119063728_InitialBackendFoundation` migration. The `tenants`, `consignments`, and `status_history` tables and all expected indexes were present. No migration was generated or modified.
+- The first CSV import completed with 68 processed, 63 imported, 1 skipped, and 4 rejected. `GET /api/imports/latest` returned that report. A second joint API/Vite run successfully served the frontend and proxied the import report; the idempotent second import reported 0 imported, 64 skipped, and 4 rejected. API startup logs contained no database errors during the successful runs.
+- The focused CSV import tests passed (20/20); the full solution test suite passed (44/44). PostgreSQL remains running and healthy; the API and Vite processes used for verification were stopped afterward.

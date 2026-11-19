@@ -21,6 +21,7 @@ public sealed class CsvImportServiceTests
         Assert.Equal(0, report.Rejected);
         Assert.Equal("swiftline-freight", (await db.Tenants.SingleAsync()).Code);
         Assert.Equal(new DateTimeOffset(2026, 11, 16, 22, 30, 0, TimeSpan.Zero), consignment.CreatedAt);
+        Assert.Equal(TimeSpan.Zero, consignment.CreatedAt.Offset);
     }
 
     [Fact]

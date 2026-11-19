@@ -358,8 +358,9 @@ public sealed class CsvImportService(ConsignmentDbContext db)
 
         if (timestamp is not null &&
             IsoTimestampPattern.IsMatch(timestamp) &&
-            DateTimeOffset.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+            DateTimeOffset.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
+            result = parsed.ToUniversalTime();
             return true;
         }
 
